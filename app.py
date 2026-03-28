@@ -243,25 +243,41 @@ def get_pfp_button_css(pfp_base64, size="70px", margin_top="0px"):
 def auth_page():
     inject_global_css()
     _, col, _ = st.columns([1, 1, 1])
+
     with col:
         st.markdown("<h1 style='text-align: center; font-size: 4rem; margin-top: 10vh; margin-bottom: 2rem;'>QUEST.exe</h1>", unsafe_allow_html=True)
         tab1, tab2 = st.tabs(["LOGIN", "REGISTER"])
         db = load_db()
+
         with tab1:
-            u = st.text_input("USERNAME", key="log_user")
-            p = st.text_input("PASSWORD", type="password", key="log_pass")
+            log_user = st.text_input("USERNAME", key="log_user")
+            log_pass = st.text_input("PASSWORD", type="password", key="log_pass")
             if st.button("LOGIN"):
-                if u in db["users"] and db["users"][u]["password"] == p:
-                    st.session_state.username = u
+                if log_user in db["users"] and db["users"][log_user]["password"] == log_pass:
+                    st.session_state.username = log_user
                     navigate_to("main_menu")
-                else: st.error("Invalid credentials")
-        with tab2:
-            n, u, p = st.text_input("NAME"), st.text_input("USERNAME", key="reg_user"), st.text_input("PASSWORD", type="password", key="reg_pass")
-            if st.button("REGISTER"):
-                if u in db["users"]: st.error("Exists!")
                 else:
-                    db["users"][u] = {"name": n, "password": p, "profile_pic": None, "achievements": [], "progress": default_progress()}
-                    save_db(db); st.success("Done!")
+                    st.error("Invalid username or password")
+
+        with tab2:
+            reg_name = st.text_input("NAME")
+            reg_user = st.text_input("USERNAME", key="reg_user")
+            reg_pass = st.text_input("PASSWORD", type="password", key="reg_pass")
+            if st.button("REGISTER"):
+                if reg_user in db["users"]:
+                    st.error("Username already exists!")
+                elif not reg_user or not reg_pass or not reg_name:
+                    st.error("All fields are required!")
+                else:
+                    db["users"][reg_user] = {
+                        "name": reg_name,
+                        "password": reg_pass,
+                        "profile_pic": None,
+                        "achievements": [],
+                        "progress": default_progress()
+                    }
+                    save_db(db)
+                    st.success("Registration successful! Please login.")
 
 def main_menu():
     inject_global_css()
