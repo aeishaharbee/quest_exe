@@ -3,6 +3,7 @@ import json
 import os
 import random
 import base64
+import streamlit.components.v1 as components
 
 # --- CONFIGURATION & DATABASE ---
 st.set_page_config(page_title="QUEST.exe", layout="wide", initial_sidebar_state="collapsed")
@@ -75,6 +76,29 @@ def get_image_html(item_name, image_path, size="50px"):
 def get_user_pfp(user_data):
     if user_data.get("profile_pic"): return user_data["profile_pic"]
     return get_b64(os.path.join("images", "elems", "profile.png"))
+
+# --- AUDIO UTILITIES ---
+def start_bgm(audio_path):
+    if os.path.exists(audio_path):
+        with open(audio_path, "rb") as f:
+            data = f.read()
+            b64 = base64.b64encode(data).decode()
+            
+        js_code = f"""
+            <script>
+            var parentDoc = window.parent.document;
+            if (parentDoc.getElementById("game_music") === null) {{
+                var audio = parentDoc.createElement("audio");
+                audio.id = "game_music";
+                audio.src = "data:audio/mp3;base64,{b64}";
+                audio.loop = true;
+                audio.volume = 0.4; 
+                parentDoc.body.appendChild(audio);
+                audio.play();
+            }}
+            </script>
+        """
+        components.html(js_code, height=0)
 
 # --- GLOBAL STYLES ---
 def inject_global_css():
@@ -256,6 +280,8 @@ def main_menu():
     with c_col:
         st.markdown("<h1 style='font-size: 6rem; letter-spacing: 0.2em; text-align: center; margin-bottom: 3rem;'>QUEST.exe</h1>", unsafe_allow_html=True)
         if st.button("START", type="primary", use_container_width=True): navigate_to("game")
+
+    start_bgm(os.path.join("audio", "bgmusic.mp3"))
 
 def settings_page():
     inject_global_css()
