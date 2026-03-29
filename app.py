@@ -17,7 +17,7 @@ def load_db():
 
 def save_db(data):
     with open(DB_FILE, "w") as f: 
-        json.dump(data, f)
+        json.dump(data, f, indent=4)
 
 # --- SESSION MANAGEMENT ---
 for key, val in {
@@ -796,10 +796,7 @@ def game_page():
             elif scene == 24:
                 text = "'He's... glitching? He looks like he's in pain.'"
                 if "Steel Spoon" in inventory:
-                    if st.button("System Patch", key="game_choice_patch"): 
-                        inv = inventory.copy()
-                        inv.remove("Steel Spoon")
-                        update_progress({"inventory": inv, "scene": 25})
+                    if st.button("System Patch", key="game_choice_patch"): update_progress({"scene": 25})
                 if st.button("Challenge Duel", key="game_choice_duel"):
                     if "Wooden Sword" in inventory: 
                         inv = inventory.copy()
@@ -881,7 +878,6 @@ def game_page():
                         result_text = "You LOST this round!"
                         b_wins += 1
                         
-                    # set a toast message to show the result of the round and bunny's choice
                     st.session_state.toast = f"Bunny chose {bunny_choice}! {result_text}"
                         
                     if p_wins >= 3:
